@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MapMaterial
-  m_Shader: {fileID: 4800000, guid: 373dad03f760b9d4e9735670cd5585b6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 8c02ff40b8b19f04fab9701f57a9fa62, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -62,7 +62,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _BlueBias: 1
-    - _BlueDominance: 0.05
+    - _BlueDominance: 1
+    - _Brightness: 1.5
     - _BumpScale: 1
     - _ColorTolerance: 0.25
     - _Cutoff: 0.5
@@ -76,8 +77,8 @@ Material:
     - _MaxSaturation: 0.671
     - _Metallic: 0
     - _MinBrightness: 1
-    - _MinLuma: 0.2
-    - _MinSaturation: 0.03
+    - _MinLuma: 1
+    - _MinSaturation: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -85,6 +86,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold: 0.05
+    - _TintStrength: 0.6
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
@@ -92,4 +94,5 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlassColor: {r: 0.34999996, g: 0.7, b: 0.95, a: 1}
     - _KeyColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TintColor: {r: 0.19999996, g: 0.6, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - GlassMask
+  - Ground
   - Water
   - UI
-  - 
-  - 
+  - Wall
+  - Ceiling
   - 
   - 
   - 
