@@ -47,9 +47,9 @@ TagManager:
   - name: Ground
     uniqueID: 3441956395
     locked: 0
+  - name: Player
+    uniqueID: 3387009455
+    locked: 0
   - name: Foreground
     uniqueID: 1371163983
-    locked: 0
-  - name: GlassMask
-    uniqueID: 3387009455
     locked: 0
