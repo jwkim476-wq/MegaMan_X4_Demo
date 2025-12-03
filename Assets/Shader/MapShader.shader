@@ -1,4 +1,4 @@
-﻿Shader "Unlit/ColorKeyAndDarkGlass"
+﻿Shader "Unlit/MapShder"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-﻿Shader "Unlit/MapShader"
+﻿Shader "Unlit/GlassShader"
 {
     Properties
     {
