@@ -121,7 +121,175 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: mmx4-dash_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 6
+        width: 35
+        height: 23
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ffeaf42ad31998646986d68536b0147e
+      internalID: 336682883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_1
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 5
+        width: 54
+        height: 32
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c91e7f91bd789249bd927e18bf65a29
+      internalID: 835230176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_2
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 7
+        width: 50
+        height: 34
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 80d57941e2acf2b438a014073cf1ff45
+      internalID: 1434413802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_3
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 9
+        width: 48
+        height: 33
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 31ad3b80392007745b5d0448bf691875
+      internalID: 1281765590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_6
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 14
+        width: 47
+        height: 30
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 72592da6e2ac2dc47bfe208d489119da
+      internalID: 1496285866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_8
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 21
+        width: 40
+        height: 23
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd18ce4e6bd28a240a8e2bdc0e861024
+      internalID: 1574300135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_10
+      rect:
+        serializedVersion: 2
+        x: 389
+        y: 23
+        width: 40
+        height: 20
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e734567951de8b4d822b84c22ca9a09
+      internalID: 142906166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-dash_4
+      rect:
+        serializedVersion: 2
+        x: 451
+        y: 23
+        width: 36
+        height: 17
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b028c8a1996b7af4d98a7e50f66fabb4
+      internalID: -1007956024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +300,18 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mmx4-dash_0: 336682883
+      mmx4-dash_1: 835230176
+      mmx4-dash_10: 142906166
+      mmx4-dash_2: 1434413802
+      mmx4-dash_3: 1281765590
+      mmx4-dash_4: -1007956024
+      mmx4-dash_5: 1952818698
+      mmx4-dash_6: 1496285866
+      mmx4-dash_7: -23661065
+      mmx4-dash_8: 1574300135
+      mmx4-dash_9: 1490583772
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

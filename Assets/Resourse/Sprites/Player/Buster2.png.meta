@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: dd6e9005d445a2a4d9da73ada71e0348
+guid: a27c09fd3bbd01d478367d45a75079a6
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mmx4-x-dash_0
+      name: Buster2_0
       rect:
         serializedVersion: 2
-        x: 7
-        y: 12
-        width: 33
-        height: 22
+        x: 5
+        y: 202
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,62 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e7af00721a66e44eade1855eb47ae7a
-      internalID: 89806529
+      spriteID: 04e97d23782aead4abca98cb7e9fd67e
+      internalID: 48459722
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_1
+      name: Buster2_1
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 196
+        width: 26
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 870ec23955d10554da8a277ae146f138
+      internalID: 827229674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Buster2_2
       rect:
         serializedVersion: 2
         x: 57
-        y: 10
+        y: 182
+        width: 32
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a41193014b637346ba39e002702a566
+      internalID: -1159644436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Buster2_3
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 179
         width: 40
-        height: 24
+        height: 62
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,20 +200,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 616d947829f0cc7418afdd4191e606e2
-      internalID: -1217278112
+      spriteID: fd6c9925735da5843952262667dd26de
+      internalID: 754834861
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_2
+      name: Buster2_4
       rect:
         serializedVersion: 2
-        x: 112
-        y: 9
-        width: 39
-        height: 26
+        x: 5
+        y: 102
+        width: 37
+        height: 46
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,20 +221,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e5bbcd9929d8b548867aaf855986205
-      internalID: -1941808209
+      spriteID: 4d76b0741415f5747ad82911efc88272
+      internalID: 1334729040
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_3
+      name: Buster2_5
       rect:
         serializedVersion: 2
-        x: 173
-        y: 9
-        width: 21
-        height: 26
+        x: 47
+        y: 88
+        width: 52
+        height: 74
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,20 +242,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cc6aa18c3a586a74bb7b20f34e257a4b
-      internalID: 1061743052
+      spriteID: fdc2a3e3e1b7c7e48942390bac2e1876
+      internalID: -110962441
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_5
+      name: Buster2_6
       rect:
         serializedVersion: 2
-        x: 265
-        y: 7
-        width: 4
-        height: 30
+        x: 104
+        y: 85
+        width: 57
+        height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,41 +263,62 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 09995f65c0e8a1d4489127279d3cbfe6
-      internalID: 109383889
+      spriteID: c6f268c0f4c5f494ca09d16baafd2979
+      internalID: 1782179157
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_6
+      name: Buster2_7
       rect:
         serializedVersion: 2
-        x: 201
+        x: 166
+        y: 81
+        width: 42
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 911e4d97300f0e94e94e440cba069dbe
+      internalID: 367150587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Buster2_8
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 22
+        width: 25
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5f0b59e6e2a266144a26759b6113c491
+      internalID: 1553341853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Buster2_9
+      rect:
+        serializedVersion: 2
+        x: 35
         y: 8
-        width: 11
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 88710de3369f30247b3f545a7d78325e
-      internalID: 1397811471
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: mmx4-x-dash_4
-      rect:
-        serializedVersion: 2
-        x: 237
-        y: 9
-        width: 18
-        height: 26
+        width: 34
+        height: 60
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -263,20 +326,41 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0dba6e657ae37ed45bf7898172516efe
-      internalID: 1312002497
+      spriteID: 733acd9bfea99e54fbc293185798eb2a
+      internalID: -959494886
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_7
+      name: Buster2_10
       rect:
         serializedVersion: 2
-        x: 302
+        x: 74
+        y: 6
+        width: 37
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a5dcb75da9780644a0ca5d7d8f807cf
+      internalID: -137301170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Buster2_11
+      rect:
+        serializedVersion: 2
+        x: 116
         y: 7
-        width: 16
-        height: 28
+        width: 40
+        height: 62
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -284,20 +368,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 59173cb0b7c63154787e5f24d8e53987
-      internalID: -1590375252
+      spriteID: 9af7efbacac4db64cb5fb9998e3b6367
+      internalID: 941674477
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: mmx4-x-dash_8
+      name: Buster2_12
       rect:
         serializedVersion: 2
-        x: 348
-        y: 7
-        width: 13
-        height: 28
+        x: 161
+        y: 5
+        width: 32
+        height: 66
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -305,8 +389,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0513788efb8b6f74fbb25d83cd35cf01
-      internalID: -388385808
+      spriteID: 3ed07effae7174e4a9a5a84e866a17bd
+      internalID: -1433819617
       vertices: []
       indices: 
       edges: []
@@ -322,15 +406,19 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      mmx4-x-dash_0: 89806529
-      mmx4-x-dash_1: -1217278112
-      mmx4-x-dash_2: -1941808209
-      mmx4-x-dash_3: 1061743052
-      mmx4-x-dash_4: 1312002497
-      mmx4-x-dash_5: 109383889
-      mmx4-x-dash_6: 1397811471
-      mmx4-x-dash_7: -1590375252
-      mmx4-x-dash_8: -388385808
+      Buster2_0: 48459722
+      Buster2_1: 827229674
+      Buster2_10: -137301170
+      Buster2_11: 941674477
+      Buster2_12: -1433819617
+      Buster2_2: -1159644436
+      Buster2_3: 754834861
+      Buster2_4: 1334729040
+      Buster2_5: -110962441
+      Buster2_6: 1782179157
+      Buster2_7: 367150587
+      Buster2_8: 1553341853
+      Buster2_9: -959494886
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

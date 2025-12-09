@@ -121,7 +121,259 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_0
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 61
+        width: 12
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ce79a1a3f551cb48882fe8959f60ca6
+      internalID: -1261449336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_2
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 59
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86f496d10ea63164ca7ab0d1f7149310
+      internalID: 1615212971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_3
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 59
+        width: 17
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 45353b502f6bf064199d96d11be179c9
+      internalID: 1542479314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_4
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 59
+        width: 19
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3511bc083fdd62f4687006e6c8ff14ea
+      internalID: -395119930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_6
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 60
+        width: 20
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fddf24c44795cd044a1da167b60ea47c
+      internalID: 1637897016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_8
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 61
+        width: 20
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5c2502f85f89f64fb1432617f903fdf
+      internalID: 1813372178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_10
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 60
+        width: 16
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5a6e467f8481a54bb273ada330d92bb
+      internalID: -1780801793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_11
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 60
+        width: 18
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4365b0791b14c0e49bd253d81124bb69
+      internalID: -1254156775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_13
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 14
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c1ac1db1cbfd4845a5d878327cf9ec0
+      internalID: -1702740909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_14
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 11
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 38aad73e7a96182488c1ee5b047c3e8f
+      internalID: 1395621160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_16
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 5
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43cd7cca4072c744bae6a64a9d9ac207
+      internalID: -263137962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mmx4-wallkick-effects_17
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 5
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d2546a8daa5330419610290a271bf9a
+      internalID: -499399405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +384,25 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mmx4-wallkick-effects_0: -1261449336
+      mmx4-wallkick-effects_1: -2010313083
+      mmx4-wallkick-effects_10: -1780801793
+      mmx4-wallkick-effects_11: -1254156775
+      mmx4-wallkick-effects_12: -1546507345
+      mmx4-wallkick-effects_13: -1702740909
+      mmx4-wallkick-effects_14: 1395621160
+      mmx4-wallkick-effects_15: 1626149336
+      mmx4-wallkick-effects_16: -263137962
+      mmx4-wallkick-effects_17: -499399405
+      mmx4-wallkick-effects_2: 1615212971
+      mmx4-wallkick-effects_3: 1542479314
+      mmx4-wallkick-effects_4: -395119930
+      mmx4-wallkick-effects_5: 795064607
+      mmx4-wallkick-effects_6: 1637897016
+      mmx4-wallkick-effects_7: 1041182224
+      mmx4-wallkick-effects_8: 1813372178
+      mmx4-wallkick-effects_9: -836658376
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

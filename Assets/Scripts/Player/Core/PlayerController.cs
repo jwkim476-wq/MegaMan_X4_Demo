@@ -2,564 +2,383 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(BoxCollider2D), typeof(Animator), typeof(SpriteRenderer))]
-public class PlayerController : MonoBehaviour
+[RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D), typeof(Animator))]
+public class MMXPlayer : MonoBehaviour
 {
     // =========================================================
-    // 1. 설정 변수 (인스펙터에서 조절)
+    // 1. 기본 움직임
     // =========================================================
-    [Header("Movement Stats")]
-    public float moveSpeed = 8f;
-    public float jumpForce = 15f;
-    public float gravity = 40f;          // 록맨은 중력이 강하고 점프가 빠릅니다
-    public float maxFallSpeed = 20f;     // 낙하 최대 속도 제한
+    [Header("1. 기본 움직임")]
+    public float moveSpeed = 5f;
+    public float jumpForce = 13f;
+    public float gravity = 40f;
+    public float maxFallSpeed = 20f;
 
-    [Header("Dash Settings")]
-    public float dashSpeed = 18f;
-    public float dashDuration = 0.45f;
-    public float dashCooldown = 0.2f;
+    [Header("2. 대쉬 설정")]
+    public float dashSpeed = 11f;
+    public float dashJumpForce = 13f;
+    public float dashDuration = 0.5f;
+    public float dashCooldown = 0.15f;
+    [Range(0, 1)] public float dashBrakeTime = 0.8f;
 
-    [Header("Wall Action Settings")]
-    public float wallSlideSpeed = 2.5f;
-    public Vector2 wallJumpPower = new Vector2(12f, 16f); // 벽 점프 시 (X반동, Y점프력)
-    public float wallJumpInputFreeze = 0.15f;             // 벽 점프 직후 조작 불가 시간 (자연스러운 궤적용)
+    [Header("3. 벽 액션")]
+    public float wallSlideSpeed = 4f;
+    public Vector2 wallJumpPower = new Vector2(10f, 14f);
+    public Vector2 dashWallJumpPower = new Vector2(14f, 16f);
+    public float wallKickTime = 0.12f;
 
-    [Header("Physics & Collision (Raycast)")]
+    [Header("4. 충돌 감지")]
     public LayerMask groundLayer;
-    public int horizontalRayCount = 4;
-    public int verticalRayCount = 4;
-    public float skinWidth = 0.015f;      // 레이캐스트가 내부에 파묻히지 않게 하는 여유값
-
-    [Header("Afterimage (Blue Ghost)")]
-    public Color ghostColor = new Color(0.2f, 0.4f, 1f, 0.7f); // 록맨 특유의 파란 잔상
-    public float ghostFadeTime = 0.3f;    // 잔상이 사라지는 속도
-    public float recordInterval = 0.04f;  // 잔상 간격 (짧을수록 촘촘함)
-    public int ghostDelayIndex = 4;       // 몇 프레임 전의 잔상을 띄울지
+    public float skinWidth = 0.015f;
+    public float maxSlopeAngle = 55f;
 
     // =========================================================
-    // 2. 내부 변수
+    // 5. 이동 VFX
     // =========================================================
-    private BoxCollider2D boxCollider;
-    private Animator anim;
-    private SpriteRenderer sr;
+    [Header("5. 이동 VFX")]
+    public Color ghostColor = new Color(0.2f, 0.4f, 1f, 0.9f);
+    public float ghostRate = 0.03f;
+    public float ghostFadeSpeed = 2.0f;
 
-    private Vector3 velocity;
-    private float velocityXSmoothing; // 부드러운 방향전환용 (사용 안하면 즉각 반응)
+    [Space(5)]
+    public GameObject dashJetEffect;
+    public GameObject wallSlideEffect;
+    public GameObject dashDustPrefab;
+    public GameObject wallKickSparkPrefab;
 
-    // 입력 및 상태
-    private Vector2 input;
-    private float direction = 1;      // 1: 오른쪽, -1: 왼쪽
-
-    // 상태 플래그
-    private bool isGrounded;
-    private bool isCeilingHit;
-    private bool isWallHit;
-    private int wallDirX;             // 벽이 어느 쪽에 있는가 (-1:좌, 1:우)
-
-    // 타이머
-    private float dashTimer;
-    private float dashCooldownTimer;
-    private float wallJumpTimer;
-
-    // FSM 상태 정의
-    public enum State { Intro, Idle, Run, Jump, Fall, Dash, WallSlide, WallJump, Shoot, Hurt, Dead }
-    [Header("Debug Info")]
-    [SerializeField] private State currentState = State.Intro;
-
-    // --- 잔상(Afterimage) 관련 구조체 및 풀 ---
-    private struct GhostSnapshot
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public Vector3 scale;
-        public Sprite sprite;
-        public bool flipX;
-    }
-    private List<GhostSnapshot> history = new List<GhostSnapshot>();
-    private float historyTimer;
-    private List<SpriteRenderer> ghostPool = new List<SpriteRenderer>();
-
-    // 애니메이터 해시 최적화
-    private readonly int hashSpeed = Animator.StringToHash("Speed");
-    private readonly int hashYSpeed = Animator.StringToHash("YSpeed");
-    private readonly int hashIsGrounded = Animator.StringToHash("IsGrounded");
-    private readonly int hashIsDashing = Animator.StringToHash("IsDashing");
-    private readonly int hashIsWallSliding = Animator.StringToHash("IsWallSliding");
-    private readonly int hashIsShooting = Animator.StringToHash("IsShooting");
+    [Header("VFX 위치 미세조정")]
+    public Vector3 dashJetOffset = new Vector3(-0.5f, -0.8f, 0);
+    public Vector3 wallSlideOffset = new Vector3(0.5f, -0.8f, 0);
+    public Vector3 dashDustOffset = new Vector3(0, -0.5f, 0);
+    public Vector3 wallSparkOffset = new Vector3(0.3f, 0, 0);
 
     // =========================================================
-    // 3. 초기화 (Awake/Start)
+    // 6. 공격 (Attack)
     // =========================================================
+    [Header("6. 공격 (Attack & Charge)")]
+    public Transform firePoint;
+
+    [Header("총구 위치 미세조정")]
+    public Vector3 standFirePos = new Vector3(0.6f, 0.1f, 0);
+    public Vector3 runFirePos = new Vector3(0.7f, 0.05f, 0);
+    public Vector3 dashFirePos = new Vector3(0.8f, -0.2f, 0);
+    public Vector3 jumpFirePos = new Vector3(0.6f, 0.3f, 0);
+    public Vector3 wallFirePos = new Vector3(0.6f, 0.3f, 0);
+
+    [Header("공격 속도")]
+    public float fireRate = 0.15f;
+
+    [Header("프리팹 & 이펙트")]
+    public GameObject bulletPrefab;
+    public GameObject charged1Prefab;
+    public GameObject charged2Prefab;
+
+    [Tooltip("Lv1 파란색 차지 (자식)")]
+    public GameObject chargeEffectLv1;
+    [Tooltip("Lv2 혼합색 차지 (자식)")]
+    public GameObject chargeEffectLv2;
+
+    public GameObject muzzleFlashNormal;
+    public GameObject muzzleFlashLv1;
+
+    [Header("설정값")]
+    public float lv1ChargeTime = 0.5f;
+    public float lv2ChargeTime = 1.5f;
+    public float shootAnimDuration = 0.3f;
+    public float flashSpeed = 25f;
+    public Color colorLv1 = new Color(0.4f, 0.8f, 1f);
+    public Color colorLv2_A = new Color(0.2f, 0.5f, 1f);
+    public Color colorLv2_B = new Color(0.4f, 1f, 0.4f);
+
+    // ★ [추가] 인트로 시간 설정
+    [Header("인트로 설정")]
+    public float introDuration = 2.0f; // 이 시간 동안은 조작 불가능
+
+    // =========================================================
+    // 내부 변수
+    // =========================================================
+    BoxCollider2D boxCollider;
+    Rigidbody2D rb;
+    Animator anim;
+    SpriteRenderer sr;
+
+    Vector2 velocity;
+    Vector2 input;
+    float direction = 1;
+
+    bool isGrounded;
+    bool isTouchingWall;
+    bool isWallHit;
+    int wallDir;
+
+    bool isDashing;
+    bool isDashJumping;
+    bool isGhostJumping;
+    bool isWallKicking;
+
+    bool isCharging;
+    float chargeTimer;
+    float shootTimer;
+    bool isShooting;
+    float nextFireTime;
+
+    bool wasGrounded;
+    public bool isIntroPlaying = true;
+
+    float dashTimer;
+    float wallKickTimer;
+    float ghostTimer;
+
+    List<SpriteRenderer> ghostPool = new List<SpriteRenderer>();
+    Animator chargeAnimator;
+
+    // Hashes
+    readonly int hashSpeed = Animator.StringToHash("Speed");
+    readonly int hashYSpeed = Animator.StringToHash("YSpeed");
+    readonly int hashIsGrounded = Animator.StringToHash("IsGrounded");
+    readonly int hashIsDashing = Animator.StringToHash("IsDashing");
+    readonly int hashIsWallSliding = Animator.StringToHash("IsWallSliding");
+    readonly int hashIsShooting = Animator.StringToHash("IsShooting");
+    readonly int hashChargeLevel = Animator.StringToHash("ChargeLevel");
+    readonly int hashYInput = Animator.StringToHash("YInput");
+
     void Awake()
     {
         boxCollider = GetComponent<BoxCollider2D>();
+        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+        if (dashJetEffect) { dashJetEffect.transform.localPosition = dashJetOffset; dashJetEffect.SetActive(false); }
+        if (wallSlideEffect) { wallSlideEffect.transform.localPosition = wallSlideOffset; wallSlideEffect.SetActive(false); }
+        if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+        if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
     }
 
-    // =========================================================
-    // 4. 메인 루프 (Update) - 요청하신 7단계 구조 적용
-    // =========================================================
     void Update()
     {
         float dt = Time.deltaTime;
 
-        // [1] 키보드 입력 처리
-        ProcessInput();
-
-        // [2] 중력 처리 (상태에 따라 다르게 적용)
-        ProcessGravity(dt);
-
-        // [3] 상태 전이 (FSM: 조건에 따른 상태 변경)
-        CalculateState(dt);
-
-        // 예상 이동량 계산
-        Vector3 moveAmount = velocity * dt;
-
-        // [4, 5, 6] 충돌 체크 (머리/지면/벽) - Raycast로 이동량 보정
-        // 물리적 안정성을 위해 Vertical(Y축) 먼저, 그 다음 Horizontal(X축) 처리
-        CheckVerticalCollision(ref moveAmount);   // 4(천장) & 6(지면)
-        CheckHorizontalCollision(ref moveAmount); // 5(벽)
-
-        // [7] 적 충돌 체크 (간단한 Trigger 처리 혹은 Ray)
-        CheckEnemyCollision();
-
-        // 최종 위치 이동
-        transform.Translate(moveAmount);
-
-        // 부가 기능: 방향 전환 및 잔상, 애니메이션
-        HandleSpriteFlip();
-        HandleAfterImage(dt);
-        UpdateAnimations();
-    }
-
-    // =========================================================
-    // [1] 입력 처리
-    // =========================================================
-    void ProcessInput()
-    {
-        // Intro 상태거나, 벽 점프 경직 중이거나, 사망 시 입력 차단
-        if (currentState == State.Intro || currentState == State.Dead || wallJumpTimer > 0)
+        // ★ [인트로 처리: 시간제 잠금]
+        if (isIntroPlaying)
         {
-            velocity.x = 0; // 움직임 멈춤
+            velocity.x = 0;
+            ProcessGravity(dt);
+
+            Vector2 gMove = velocity * dt;
+            Move(ref gMove);
+            transform.Translate(gMove);
+
+            UpdateAnimation();
+
+            // ★ 설정한 시간(introDuration)이 지나면 해제
+            if (Time.timeSinceLevelLoad > introDuration)
+            {
+                isIntroPlaying = false;
+            }
+
+            // 인트로 중엔 모든 이펙트 끔
+            if (dashJetEffect && dashJetEffect.activeSelf) dashJetEffect.SetActive(false);
+            if (wallSlideEffect && wallSlideEffect.activeSelf) wallSlideEffect.SetActive(false);
+            if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+            if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
             return;
         }
 
-        input.x = Input.GetAxisRaw("Horizontal");
-        // 벽 점프 직후 잠시 동안은 방향 키 입력 무시 (벽에서 튕겨나가는 느낌 유지)
-        if (wallJumpTimer > 0) return;
+        ProcessInput(dt);
+        CalculatePhysics(dt);
+
+        Vector2 moveAmount = velocity * dt;
+        wasGrounded = isGrounded;
+        Move(ref moveAmount);
+
+        transform.Translate(moveAmount);
+
+        HandleGhostTrail(dt);
+        UpdateAnimation();
+        HandleEffects();
+        HandleAttack();
+        HandleCharacterBlinking();
+
+        UpdateFirePointPosition();
+    }
+
+    void ProcessGravity(float dt) { if (isGrounded && velocity.y <= 0) velocity.y = -1f; else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
+
+    void ProcessInput(float dt)
+    {
+        if (shootTimer > 0) { shootTimer -= dt; if (shootTimer <= 0) isShooting = false; }
+
+        if (Input.GetKey(KeyCode.C))
+        {
+            isCharging = true;
+            chargeTimer += dt;
+        }
+        else if (Input.GetKeyUp(KeyCode.C))
+        {
+            Fire();
+            isCharging = false;
+            chargeTimer = 0;
+            sr.color = Color.white;
+        }
+
+        if (isWallKicking) { wallKickTimer -= dt; if (wallKickTimer <= 0) isWallKicking = false; return; }
 
         input.x = Input.GetAxisRaw("Horizontal");
         input.y = Input.GetAxisRaw("Vertical");
 
-        // 점프 (C키)
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            OnJumpInput();
-        }
+        if (isDashing && input.x != 0 && Mathf.Sign(input.x) != direction) { isDashing = false; dashTimer = 0; }
 
-        // 점프 중단 (키를 떼면 점프 높이 조절)
-        if (Input.GetKeyUp(KeyCode.C) && velocity.y > 0 && currentState != State.WallJump)
-        {
-            velocity.y = velocity.y * 0.5f;
-        }
-
-        // 대쉬 (Z키)
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            if (CanDash())
-            {
-                dashTimer = dashDuration;
-                // 대쉬 시작 시 방향 고정 (입력이 없으면 바라보는 방향)
-                if (input.x != 0) direction = Mathf.Sign(input.x);
-            }
-        }
-
-        // 공격 (X키)
         if (Input.GetKeyDown(KeyCode.X))
         {
-            anim.SetTrigger(hashIsShooting);
-            // 필요 시 공격 중 이동 정지 로직 추가 가능
-        }
-    }
-
-    void OnJumpInput()
-    {
-        if (currentState == State.WallSlide)
-        {
-            // 벽 점프
-            WallJump();
-        }
-        else if (isGrounded)
-        {
-            // 일반 점프
-            velocity.y = jumpForce;
-            // 대쉬 점프 테크닉: 대쉬 중에 점프하면 대쉬 속도 유지
-            if (currentState == State.Dash)
+            if (isTouchingWall && !isGrounded) PerformWallKick();
+            else if (isGrounded)
             {
-                // 여기서 별도 처리는 필요 없고 State가 Jump로 바뀌어도 
-                // X축 속도가 유지되도록 CalculateState에서 처리함
+                velocity.y = jumpForce; isGrounded = false;
+                bool zHeld = Input.GetKey(KeyCode.Z);
+                bool moving = input.x != 0;
+                if (isDashing || (zHeld && moving)) { isDashJumping = true; velocity.y = dashJumpForce; if (moving) direction = Mathf.Sign(input.x); }
+                else if (zHeld) { isGhostJumping = true; velocity.y = dashJumpForce; }
+                isDashing = false;
             }
         }
-    }
+        if (Input.GetKeyUp(KeyCode.X) && velocity.y > 0) velocity.y *= 0.5f;
 
-    bool CanDash()
-    {
-        // 쿨타임 중이 아니고, 지상이며, 이미 대쉬 중이 아닐 때
-        return dashCooldownTimer <= 0 && isGrounded && currentState != State.Dash;
-    }
+        if (Input.GetKeyDown(KeyCode.Z) && isGrounded && !isDashing)
+        {
+            isDashing = true; dashTimer = dashDuration;
+            if (input.x != 0) direction = Mathf.Sign(input.x);
 
-    // =========================================================
-    // [2] 중력 처리
-    // =========================================================
-    void ProcessGravity(float dt)
-    {
-        if (currentState == State.Dash)
-        {
-            velocity.y = 0;
-        }
-        else if (currentState == State.WallSlide)
-        {
-            velocity.y = -wallSlideSpeed;
-        }
-        else
-        {
-            // 땅에 있을 때는 중력을 계속 누적시키지 말고, 
-            // 바닥에 딱 붙어있을 정도의 미세한 힘(-1f)만 유지합니다.
-            if (isGrounded && velocity.y <= 0)
+            if (dashDustPrefab)
             {
-                velocity.y = -1f;
+                Vector3 spawnPos = transform.position + new Vector3(dashDustOffset.x * direction, dashDustOffset.y, 0);
+                GameObject dust = Instantiate(dashDustPrefab, spawnPos, Quaternion.identity);
+                Vector3 s = dust.transform.localScale; s.x = direction; dust.transform.localScale = s;
+                dust.SetActive(true);
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.Z) && isDashing) { isDashing = false; if (anim.HasState(0, Animator.StringToHash("Dash"))) anim.Play("Dash", 0, dashBrakeTime); }
+    }
+
+    void Fire()
+    {
+        if (chargeTimer < 0.2f && Time.time < nextFireTime) return;
+        nextFireTime = Time.time + fireRate;
+
+        float chargeValue = 0f;
+        int level = 0;
+        if (chargeTimer >= lv2ChargeTime) { chargeValue = 1.0f; level = 2; }
+        else if (chargeTimer >= lv1ChargeTime) { chargeValue = 0.5f; level = 1; }
+        anim.SetFloat(hashChargeLevel, chargeValue);
+
+        GameObject prefab = bulletPrefab;
+        if (level == 1) prefab = charged1Prefab;
+        else if (level == 2) prefab = charged2Prefab;
+
+        float shootDir = direction;
+        // 벽 타기 중이면 반대로 발사
+        bool isSliding = isTouchingWall && !isGrounded && velocity.y < 0;
+        if (isSliding) shootDir = -wallDir;
+
+        if (prefab && firePoint)
+        {
+            Quaternion rot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
+            GameObject b = Instantiate(prefab, firePoint.position, rot);
+            b.SetActive(true);
+        }
+
+        GameObject flashPrefab = null;
+        if (level == 0) flashPrefab = muzzleFlashNormal;
+        else if (level == 1) flashPrefab = muzzleFlashLv1;
+
+        if (flashPrefab && firePoint)
+        {
+            Quaternion flashRot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
+            GameObject flash = Instantiate(flashPrefab, firePoint.position, flashRot);
+            flash.transform.SetParent(firePoint);
+            flash.SetActive(true);
+        }
+
+        isShooting = true;
+        shootTimer = shootAnimDuration;
+
+        // ★ [확인] anim.Play() 코드 완전히 제거됨 (연타 끊김 해결)
+    }
+
+    void HandleAttack()
+    {
+        if (isCharging)
+        {
+            // 이펙트 위치 고정
+            if (chargeEffectLv1) chargeEffectLv1.transform.localPosition = Vector3.zero;
+            if (chargeEffectLv2) chargeEffectLv2.transform.localPosition = Vector3.zero;
+
+            if (chargeTimer >= lv2ChargeTime)
+            {
+                if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+                if (chargeEffectLv2 && !chargeEffectLv2.activeSelf) chargeEffectLv2.SetActive(true);
+            }
+            else if (chargeTimer >= lv1ChargeTime)
+            {
+                if (chargeEffectLv1 && !chargeEffectLv1.activeSelf) chargeEffectLv1.SetActive(true);
+                if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
             }
             else
             {
-                velocity.y -= gravity * dt;
-                if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed;
+                if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+                if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
             }
         }
-    }
-
-    // =========================================================
-    // [3] 상태 전이 (FSM)
-    // =========================================================
-    void CalculateState(float dt)
-    {
-        // 타이머 갱신
-        if (wallJumpTimer > 0) wallJumpTimer -= dt;
-        if (dashTimer > 0) dashTimer -= dt;
-        if (dashCooldownTimer > 0) dashCooldownTimer -= dt;
-
-        // 상태 전환 로직
-        switch (currentState)
+        else
         {
-            case State.Intro:
-                // 1. 땅에 닿았는지 확인 (빛줄기로 내려오다가 착지)
-                if (isGrounded)
-                {
-                    // 2. 애니메이션이 끝났는지 확인
-                    // (Animator의 현재 상태가 Intro이고, 재생 시간이 1(100%)을 넘었으면)
-                    if (anim.GetCurrentAnimatorStateInfo(0).IsName("Intro") &&
-                        anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
-                    {
-                        currentState = State.Idle; // 조작 가능 상태로 전환
-                    }
-                }
-                else if (Time.timeSinceLevelLoad > 2.0f)
-                {
-                    currentState = State.Idle;
-                }
-                break;
-            case State.Idle:
-            case State.Run:
-                if (!isGrounded) currentState = State.Fall;
-                else if (dashTimer > 0) currentState = State.Dash;
-                else if (input.x != 0) currentState = State.Run;
-                else currentState = State.Idle;
-                break;
-
-            case State.Jump:
-            case State.Fall:
-                if (isGrounded)
-                {
-                    currentState = State.Idle;
-                    velocity.x = 0; // 착지 시 미끄러짐 방지
-                }
-                // 벽 슬라이드 조건: 공중 + 벽에 닿음 + 하강 중 + 벽 쪽으로 키 입력
-                else if (isWallHit && velocity.y < 0 && input.x == wallDirX)
-                {
-                    currentState = State.WallSlide;
-                }
-                break;
-
-            case State.WallSlide:
-                if (isGrounded) currentState = State.Idle;
-                else if (!isWallHit || input.x != wallDirX) currentState = State.Fall;
-                else if (Input.GetKeyDown(KeyCode.C)) WallJump(); // 여기서도 점프 체크
-                break;
-
-            case State.Dash:
-                // 대쉬 종료 조건: 시간 종료 or 벽 충돌 or 공중(단, 대쉬점프는 허용해야 하므로 Jump로 전이)
-                if (isWallHit || !isGrounded)
-                {
-                    dashTimer = 0;
-                    currentState = isGrounded ? State.Idle : State.Fall;
-                }
-                else if (dashTimer <= 0)
-                {
-                    dashCooldownTimer = dashCooldown;
-                    currentState = State.Idle; // 대쉬 끝 자연스럽게 정지
-                    velocity.x = 0;
-                }
-                else
-                {
-                    // 대쉬 이동 실행
-                    velocity.x = direction * dashSpeed;
-                }
-                break;
-
-            case State.WallJump:
-                if (wallJumpTimer <= 0) currentState = State.Fall;
-                break;
-        }
-
-        // 일반 이동 속도 적용 (대쉬나 벽점프 강제 이동이 아닐 때)
-        if (currentState != State.Dash && wallJumpTimer <= 0)
-        {
-            // 록맨은 가속/감속 없이 즉각적인 이동 (GetAxisRaw 사용)
-            velocity.x = input.x * moveSpeed;
+            if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+            if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
         }
     }
 
-    void WallJump()
+    void HandleCharacterBlinking()
     {
-        wallJumpTimer = wallJumpInputFreeze;
-        currentState = State.WallJump;
-
-        // 벽 반대 방향으로 튕겨나감
-        velocity.x = -wallDirX * wallJumpPower.x;
-        velocity.y = wallJumpPower.y;
-
-        // 캐릭터 방향 즉시 반전
-        direction = -wallDirX;
-    }
-
-    // =========================================================
-    // [4, 6] 수직 충돌 체크 (천장 & 지면)
-    // =========================================================
-    void CheckVerticalCollision(ref Vector3 moveAmount)
-    {
-        float dirY = Mathf.Sign(moveAmount.y);
-        // 레이 길이를 조금 더 여유있게 줍니다 (+0.05f). 
-        // 속도가 0이어도 바닥을 감지할 수 있게 하기 위함입니다.
-        float rayLength = Mathf.Abs(moveAmount.y) + skinWidth + 0.05f;
-
-        isGrounded = false;
-        isCeilingHit = false;
-
-        for (int i = 0; i < verticalRayCount; i++)
+        if (isCharging)
         {
-            Vector2 rayOrigin = (dirY == -1) ? GetRayOriginBottom(i) : GetRayOriginTop(i);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * dirY, rayLength, groundLayer);
-
-            Debug.DrawRay(rayOrigin, Vector2.up * dirY * rayLength, Color.red); // 디버그용 선
-
-            if (hit)
-            {
-                moveAmount.y = (hit.distance - skinWidth) * dirY;
-                rayLength = hit.distance;
-
-                if (dirY == -1) // 바닥 착지
-                {
-                    isGrounded = true;
-                }
-                else // 천장 충돌
-                {
-                    isCeilingHit = true;
-                    velocity.y = 0;
-                }
-            }
+            float t = Mathf.PingPong(Time.time * flashSpeed, 1f);
+            if (chargeTimer >= lv2ChargeTime) sr.color = Color.Lerp(colorLv2_A, colorLv2_B, t);
+            else if (chargeTimer >= lv1ChargeTime) sr.color = Color.Lerp(Color.white, colorLv1, t);
+            else sr.color = Color.white;
+        }
+        else
+        {
+            sr.color = Color.white;
         }
     }
 
-    // =========================================================
-    // [5] 수평 충돌 체크 (벽)
-    // =========================================================
-    void CheckHorizontalCollision(ref Vector3 moveAmount)
-    {
-        float dirX = Mathf.Sign(moveAmount.x);
-        float rayLength = Mathf.Abs(moveAmount.x) + skinWidth;
+    void CalculatePhysics(float dt) { if ((isGrounded && velocity.y <= 0) || isWallHit) { isDashJumping = false; isGhostJumping = false; } if (isDashing && !isGrounded) isDashing = false; if (isWallKicking) { } else if (isDashing) { dashTimer -= dt; if (dashTimer <= 0 || (isWallHit && !isGrounded)) isDashing = false; velocity.x = direction * dashSpeed; } else if (isDashJumping) { if (input.x == 0) velocity.x = 0; else { direction = Mathf.Sign(input.x); velocity.x = direction * dashSpeed; } if (isWallHit) isDashJumping = false; } else velocity.x = input.x * moveSpeed; if (!isWallKicking && velocity.x != 0) { if (!isDashing) { direction = Mathf.Sign(velocity.x); transform.localScale = new Vector3(direction, 1, 1); } } if (isDashing) velocity.y = 0; else if (isTouchingWall && !isGrounded && velocity.y < 0 && input.x == wallDir) { velocity.y = -wallSlideSpeed; isDashJumping = false; isGhostJumping = false; } else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
+    void PerformWallKick() { isWallKicking = true; wallKickTimer = wallKickTime; isDashing = false; bool isDashKick = Input.GetKey(KeyCode.Z); Vector2 power = isDashKick ? dashWallJumpPower : wallJumpPower; velocity.x = -wallDir * power.x; velocity.y = power.y; direction = -wallDir; transform.localScale = new Vector3(direction, 1, 1); if (isDashKick) { isDashJumping = true; ghostTimer = 0; SpawnGhost(); } if (wallKickSparkPrefab) { Vector3 spawnPos = transform.position + new Vector3(wallSparkOffset.x * wallDir, wallSparkOffset.y, 0); Quaternion rot = (wallDir == 1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity; GameObject spark = Instantiate(wallKickSparkPrefab, spawnPos, rot); spark.SetActive(true); } }
+    void Move(ref Vector2 moveAmount) { isGrounded = false; isWallHit = false; isTouchingWall = false; CheckWallSensor(); if ((moveAmount.y <= 0 && wasGrounded) || (isDashing && wasGrounded)) DescendSlope(ref moveAmount); if (moveAmount.x != 0) { float dirX = Mathf.Sign(moveAmount.x); float dist = Mathf.Abs(moveAmount.x) + skinWidth; Vector2 boxSize = boxCollider.size; boxSize.x -= skinWidth * 2; boxSize.y -= skinWidth * 2; RaycastHit2D hit = Physics2D.BoxCast((Vector2)transform.position + boxCollider.offset, boxSize, 0, Vector2.right * dirX, dist, groundLayer); if (hit) { float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); if (slopeAngle <= maxSlopeAngle) ClimbSlope(ref moveAmount, slopeAngle); else { moveAmount.x = (hit.distance - skinWidth) * dirX; isWallHit = true; } } } float dirY = (moveAmount.y > 0) ? 1 : -1; if (moveAmount.y == 0) dirY = -1; float distY = Mathf.Abs(moveAmount.y) + skinWidth + 0.05f; Vector2 vBoxSize = boxCollider.size; vBoxSize.x -= skinWidth * 2; RaycastHit2D vHit = Physics2D.BoxCast((Vector2)transform.position + boxCollider.offset, vBoxSize, 0, Vector2.up * dirY, distY, groundLayer); if (vHit) { float realDist = vHit.distance - skinWidth; if (dirY == -1) { if (realDist <= Mathf.Abs(moveAmount.y) + 0.05f) { moveAmount.y = realDist * dirY; isGrounded = true; if (!isDashing) velocity.y = 0; } } else { if (realDist < Mathf.Abs(moveAmount.y)) { moveAmount.y = realDist * dirY; velocity.y = 0; } } } }
+    void ClimbSlope(ref Vector2 moveAmount, float slopeAngle) { float moveDistance = Mathf.Abs(moveAmount.x); float climbVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance; if (moveAmount.y <= climbVelocityY) { moveAmount.y = climbVelocityY; moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x); isGrounded = true; } }
+    void DescendSlope(ref Vector2 moveAmount) { float maxDescendLen = Mathf.Abs(moveAmount.x) + skinWidth + 0.5f; Vector2 origin = (Vector2)transform.position + boxCollider.offset; Vector2 rayOriginL = origin + new Vector2(-boxCollider.size.x / 2 + skinWidth, -boxCollider.size.y / 2); Vector2 rayOriginR = origin + new Vector2(boxCollider.size.x / 2 - skinWidth, -boxCollider.size.y / 2); RaycastHit2D hitL = Physics2D.Raycast(rayOriginL, Vector2.down, maxDescendLen, groundLayer); RaycastHit2D hitR = Physics2D.Raycast(rayOriginR, Vector2.down, maxDescendLen, groundLayer); RaycastHit2D hit = hitL ? hitL : hitR; if (hit) { float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); if (slopeAngle != 0 && slopeAngle <= maxSlopeAngle) { if (Mathf.Sign(hit.normal.x) == Mathf.Sign(moveAmount.x)) { float moveDistance = Mathf.Abs(moveAmount.x); float descendVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance; moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x); moveAmount.y -= descendVelocityY; isGrounded = true; } } } }
+    void CheckWallSensor() { Vector2 size = boxCollider.size; size.x += 0.2f; size.y *= 0.8f; Collider2D hit = Physics2D.OverlapBox((Vector2)transform.position + boxCollider.offset, size, 0, groundLayer); if (hit) { wallDir = (hit.transform.position.x > transform.position.x) ? 1 : -1; isTouchingWall = true; } }
+    void HandleEffects() { if (dashJetEffect) { bool showJet = isDashing; dashJetEffect.transform.localPosition = dashJetOffset; dashJetEffect.SetActive(showJet); } if (wallSlideEffect) { wallSlideEffect.transform.localPosition = wallSlideOffset; bool isSliding = isTouchingWall && !isGrounded && (input.x == wallDir) && velocity.y < 0; if (isSliding != wallSlideEffect.activeSelf) wallSlideEffect.SetActive(isSliding); } }
+    void HandleGhostTrail(float dt) { if (isDashing || isDashJumping || isGhostJumping) { ghostTimer -= dt; if (ghostTimer <= 0) { SpawnGhost(); ghostTimer = ghostRate; } } foreach (var g in ghostPool) { if (g.gameObject.activeInHierarchy) { Color c = g.color; c.a -= ghostFadeSpeed * dt; g.color = c; if (c.a <= 0) g.gameObject.SetActive(false); } } }
+    void SpawnGhost() { SpriteRenderer g = GetGhostFromPool(); g.transform.position = transform.position; g.transform.rotation = transform.rotation; g.transform.localScale = transform.localScale; g.sprite = sr.sprite; g.flipX = sr.flipX; g.color = ghostColor; g.gameObject.SetActive(true); }
+    SpriteRenderer GetGhostFromPool() { foreach (var g in ghostPool) if (!g.gameObject.activeInHierarchy) return g; GameObject o = new GameObject("Ghost"); SpriteRenderer r = o.AddComponent<SpriteRenderer>(); r.sortingLayerID = sr.sortingLayerID; r.sortingOrder = sr.sortingOrder - 1; ghostPool.Add(r); return r; }
 
-        // 벽에 붙어있을 때(이동량이 0일 때)도 벽 타기를 위해 감지해야 함
-        if (Mathf.Abs(moveAmount.x) < skinWidth) rayLength = 2 * skinWidth;
-
-        isWallHit = false;
-
-        for (int i = 0; i < horizontalRayCount; i++)
-        {
-            Vector2 rayOrigin = (dirX == -1) ? GetRayOriginLeft(i) : GetRayOriginRight(i);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, groundLayer);
-
-            Debug.DrawRay(rayOrigin, Vector2.right * dirX * rayLength, Color.red);
-
-            if (hit)
-            {
-                // 대쉬나 이동 중 벽에 막힘
-                if (Mathf.Abs(moveAmount.x) > 0)
-                {
-                    moveAmount.x = (hit.distance - skinWidth) * dirX;
-                }
-                rayLength = hit.distance;
-
-                isWallHit = true;
-                wallDirX = (int)dirX;
-            }
-        }
-    }
-
-    // =========================================================
-    // [7] 적 충돌 체크 (예시)
-    // =========================================================
-    void CheckEnemyCollision()
-    {
-        // BoxCollider2D의 IsTrigger가 체크된 Enemy Hitbox와 닿았을 때 처리하거나
-        // 여기서 Physics2D.OverlapBox 등을 사용해 능동적으로 체크 가능
-    }
-
-    // 피격 처리 예시 (외부에서 호출 가능)
-    public void OnTakeDamage(int damage, Vector2 damageSourcePos)
-    {
-        if (currentState == State.Dead) return;
-
-        currentState = State.Hurt;
-        anim.SetTrigger("Hurt");
-
-        // 넉백 (데미지 소스 반대 방향으로 튕김)
-        float knockbackDir = transform.position.x - damageSourcePos.x > 0 ? 1 : -1;
-        velocity = new Vector2(knockbackDir * 5f, 5f);
-
-        // 일정 시간 후 Idle 복귀 로직 필요 (Coroutine 권장)
-    }
-
-    // =========================================================
-    // [부가 기능] 잔상 (Afterimage) - 오브젝트 풀링
-    // =========================================================
-    void HandleAfterImage(float dt)
-    {
-        // 1. 스냅샷 기록
-        historyTimer += dt;
-        if (historyTimer >= recordInterval)
-        {
-            history.Add(new GhostSnapshot
-            {
-                position = transform.position,
-                rotation = transform.rotation,
-                scale = transform.localScale,
-                sprite = sr.sprite,
-                flipX = sr.flipX
-            });
-            if (history.Count > 30) history.RemoveAt(0); // 메모리 관리
-            historyTimer = 0;
-        }
-
-        // 2. 대쉬 중에만 잔상 표시
-        if (currentState == State.Dash && history.Count > ghostDelayIndex)
-        {
-            GhostSnapshot snapshot = history[history.Count - 1 - ghostDelayIndex];
-
-            // 풀에서 가져오기
-            SpriteRenderer ghost = GetGhostFromPool();
-
-            // 데이터 적용
-            ghost.transform.position = snapshot.position;
-            ghost.transform.rotation = snapshot.rotation;
-            ghost.transform.localScale = snapshot.scale;
-            ghost.sprite = snapshot.sprite;
-            ghost.flipX = snapshot.flipX;
-            ghost.color = ghostColor;
-
-            ghost.gameObject.SetActive(true);
-            StartCoroutine(FadeOutGhost(ghost));
-        }
-    }
-
-    SpriteRenderer GetGhostFromPool()
-    {
-        foreach (var g in ghostPool)
-        {
-            if (!g.gameObject.activeInHierarchy) return g;
-        }
-
-        // 없으면 새로 생성
-        GameObject obj = new GameObject("Ghost");
-        SpriteRenderer r = obj.AddComponent<SpriteRenderer>();
-        r.sortingLayerID = sr.sortingLayerID;
-        r.sortingOrder = sr.sortingOrder - 1; // 플레이어 뒤
-        obj.SetActive(false);
-        ghostPool.Add(r);
-        return r;
-    }
-
-    IEnumerator FadeOutGhost(SpriteRenderer ghost)
-    {
-        float elapsed = 0;
-        Color startColor = ghostColor;
-        while (elapsed < ghostFadeTime)
-        {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(startColor.a, 0, elapsed / ghostFadeTime);
-            ghost.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-            yield return null;
-        }
-        ghost.gameObject.SetActive(false);
-    }
-
-    // =========================================================
-    // 유틸리티 및 헬퍼 함수
-    // =========================================================
-    void HandleSpriteFlip()
-    {
-        // 벽타기나 벽점프 중에는 방향 고정
-        if (currentState == State.WallSlide || currentState == State.WallJump) return;
-
-        if (velocity.x > 0.1f)
-        {
-            direction = 1;
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (velocity.x < -0.1f)
-        {
-            direction = -1;
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-    }
-
-    void UpdateAnimations()
+    // ★ [UpdateAnimation] 벽 타기 시 달리기 샷 방지 (Speed = 0 트릭)
+    void UpdateAnimation()
     {
         anim.SetFloat(hashSpeed, Mathf.Abs(velocity.x));
         anim.SetFloat(hashYSpeed, velocity.y);
+        bool isSliding = isTouchingWall && !isGrounded && (input.x == wallDir) && velocity.y < 0;
+        if (isSliding) anim.SetFloat(hashSpeed, 0f); // 벽 탈 땐 속도 0으로 속여서 달리기 샷 방지
         anim.SetBool(hashIsGrounded, isGrounded);
-        anim.SetBool(hashIsDashing, currentState == State.Dash);
-        anim.SetBool(hashIsWallSliding, currentState == State.WallSlide);
+        anim.SetBool(hashIsDashing, isDashing && isGrounded);
+        anim.SetBool(hashIsWallSliding, isSliding);
+        anim.SetBool(hashIsShooting, isShooting);
+        anim.SetFloat(hashYInput, input.y);
     }
 
-    // --- Raycast Origins (충돌 박스 모서리 계산) ---
-    Vector2 GetRayOriginBottom(int i)
-    {
-        Bounds b = boxCollider.bounds; b.Expand(skinWidth * -2);
-        return new Vector2(Mathf.Lerp(b.min.x, b.max.x, (float)i / (verticalRayCount - 1)), b.min.y);
-    }
-    Vector2 GetRayOriginTop(int i)
-    {
-        Bounds b = boxCollider.bounds; b.Expand(skinWidth * -2);
-        return new Vector2(Mathf.Lerp(b.min.x, b.max.x, (float)i / (verticalRayCount - 1)), b.max.y);
-    }
-    Vector2 GetRayOriginLeft(int i)
-    {
-        Bounds b = boxCollider.bounds; b.Expand(skinWidth * -2);
-        return new Vector2(b.min.x, Mathf.Lerp(b.min.y, b.max.y, (float)i / (horizontalRayCount - 1)));
-    }
-    Vector2 GetRayOriginRight(int i)
-    {
-        Bounds b = boxCollider.bounds; b.Expand(skinWidth * -2);
-        return new Vector2(b.max.x, Mathf.Lerp(b.min.y, b.max.y, (float)i / (horizontalRayCount - 1)));
-    }
+    void OnDrawGizmos() { Gizmos.color = Color.green; Gizmos.DrawWireSphere(transform.position + dashDustOffset, 0.1f); Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position + wallSparkOffset, 0.1f); Gizmos.color = Color.blue; Gizmos.DrawWireSphere(transform.position + new Vector3(dashJetOffset.x * direction, dashJetOffset.y, 0), 0.1f); Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position + new Vector3(wallSlideOffset.x * direction, wallSlideOffset.y, 0), 0.1f); if (firePoint) { Gizmos.color = Color.white; Gizmos.DrawWireSphere(firePoint.position, 0.1f); } }
+    void UpdateFirePointPosition() { if (firePoint == null) return; Vector3 targetPos = standFirePos; if (isDashing || isDashJumping) targetPos = dashFirePos; else if (!isGrounded || isWallKicking) targetPos = jumpFirePos; else if (Mathf.Abs(velocity.x) > 0.1f) targetPos = runFirePos; if (isTouchingWall && !isGrounded && input.x == wallDir && velocity.y < 0) targetPos = wallFirePos; firePoint.localPosition = targetPos; }
 }
