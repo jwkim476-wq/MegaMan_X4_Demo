@@ -1,9 +1,9 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D), typeof(Animator))]
-public class MMXPlayer : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     // =========================================================
     // 1. 기본 움직임
@@ -90,9 +90,8 @@ public class MMXPlayer : MonoBehaviour
     public Color colorLv2_A = new Color(0.2f, 0.5f, 1f);
     public Color colorLv2_B = new Color(0.4f, 1f, 0.4f);
 
-    // ★ [추가] 인트로 시간 설정
     [Header("인트로 설정")]
-    public float introDuration = 2.0f; // 이 시간 동안은 조작 불가능
+    public float introDuration = 2.0f;
 
     // =========================================================
     // 내부 변수
@@ -125,6 +124,11 @@ public class MMXPlayer : MonoBehaviour
     bool wasGrounded;
     public bool isIntroPlaying = true;
 
+    // 상태 제어용 변수 (외부에서 제어됨)
+    public bool isDead { get; private set; }
+    public bool isHurt { get; private set; }
+    float hurtTimer;
+
     float dashTimer;
     float wallKickTimer;
     float ghostTimer;
@@ -141,6 +145,9 @@ public class MMXPlayer : MonoBehaviour
     readonly int hashIsShooting = Animator.StringToHash("IsShooting");
     readonly int hashChargeLevel = Animator.StringToHash("ChargeLevel");
     readonly int hashYInput = Animator.StringToHash("YInput");
+    // 피격/사망 애니메이션 해시
+    readonly int hashIsHurt = Animator.StringToHash("IsHurt");
+    readonly int hashIsDead = Animator.StringToHash("IsDead");
 
     void Awake()
     {
@@ -162,32 +169,42 @@ public class MMXPlayer : MonoBehaviour
     {
         float dt = Time.deltaTime;
 
-        // ★ [인트로 처리: 시간제 잠금]
+        // 1. 사망 시 조작 불가
+        if (isDead) return;
+
+        // 2. 피격(넉백) 시 조작 불가 + 물리 처리
+        if (isHurt)
+        {
+            ProcessGravity(dt);
+            Vector2 hurtMove = velocity * dt;
+            Move(ref hurtMove);
+            transform.Translate(hurtMove);
+
+            hurtTimer -= dt;
+            if (hurtTimer <= 0) isHurt = false; // 경직 해제
+            return;
+        }
+
+        // 3. 인트로
         if (isIntroPlaying)
         {
             velocity.x = 0;
             ProcessGravity(dt);
-
             Vector2 gMove = velocity * dt;
             Move(ref gMove);
             transform.Translate(gMove);
-
             UpdateAnimation();
+            CheckIntroStatus();
 
-            // ★ 설정한 시간(introDuration)이 지나면 해제
-            if (Time.timeSinceLevelLoad > introDuration)
-            {
-                isIntroPlaying = false;
-            }
-
-            // 인트로 중엔 모든 이펙트 끔
-            if (dashJetEffect && dashJetEffect.activeSelf) dashJetEffect.SetActive(false);
-            if (wallSlideEffect && wallSlideEffect.activeSelf) wallSlideEffect.SetActive(false);
+            // 이펙트 끄기
+            if (dashJetEffect) dashJetEffect.SetActive(false);
+            if (wallSlideEffect) wallSlideEffect.SetActive(false);
             if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
             if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
             return;
         }
 
+        // 4. 정상 플레이
         ProcessInput(dt);
         CalculatePhysics(dt);
 
@@ -202,158 +219,62 @@ public class MMXPlayer : MonoBehaviour
         HandleEffects();
         HandleAttack();
         HandleCharacterBlinking();
-
         UpdateFirePointPosition();
     }
 
-    void ProcessGravity(float dt) { if (isGrounded && velocity.y <= 0) velocity.y = -1f; else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
+    // [외부 호출용] 피격 반응 함수 (CharacterHealth에서 호출)
+    public void OnHurt(float damageOriginX, Vector2 knockbackForce, float duration)
+    {
+        isHurt = true;
+        hurtTimer = duration;
 
+        // 차지/공격 캔슬
+        isCharging = false;
+        chargeTimer = 0;
+        isShooting = false;
+        if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
+        if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
+
+        // 넉백 계산
+        float knockDir = (transform.position.x > damageOriginX) ? 1 : -1;
+        velocity = new Vector2(knockDir * knockbackForce.x, knockbackForce.y);
+
+        // 맞는 쪽 쳐다보기
+        direction = -knockDir;
+        transform.localScale = new Vector3(direction, 1, 1);
+
+        anim.SetTrigger(hashIsHurt);
+    }
+
+    // [외부 호출용] 사망 반응 함수
+    public void OnDie()
+    {
+        isDead = true;
+        isHurt = false;
+        velocity = Vector2.zero;
+        anim.SetBool(hashIsDead, true);
+        // 필요 시 여기서 Player Collider 끄기 등을 추가 가능
+    }
+
+    // ... (이동, 물리, 공격 로직은 이전과 100% 동일하므로 생략 없이 유지) ...
+    void CheckIntroStatus() { if (Time.timeSinceLevelLoad < 0.5f) return; AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0); if (info.IsName("Idle") || info.IsName("X_Idle") || Time.timeSinceLevelLoad > introDuration) { isIntroPlaying = false; } }
+    void ProcessGravity(float dt) { if (isGrounded && velocity.y <= 0) velocity.y = -1f; else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
     void ProcessInput(float dt)
     {
         if (shootTimer > 0) { shootTimer -= dt; if (shootTimer <= 0) isShooting = false; }
-
-        if (Input.GetKey(KeyCode.C))
-        {
-            isCharging = true;
-            chargeTimer += dt;
-        }
-        else if (Input.GetKeyUp(KeyCode.C))
-        {
-            Fire();
-            isCharging = false;
-            chargeTimer = 0;
-            sr.color = Color.white;
-        }
-
+        if (Input.GetKey(KeyCode.C)) { isCharging = true; chargeTimer += dt; }
+        else if (Input.GetKeyUp(KeyCode.C)) { Fire(); isCharging = false; chargeTimer = 0; sr.color = Color.white; }
         if (isWallKicking) { wallKickTimer -= dt; if (wallKickTimer <= 0) isWallKicking = false; return; }
-
-        input.x = Input.GetAxisRaw("Horizontal");
-        input.y = Input.GetAxisRaw("Vertical");
-
+        input.x = Input.GetAxisRaw("Horizontal"); input.y = Input.GetAxisRaw("Vertical");
         if (isDashing && input.x != 0 && Mathf.Sign(input.x) != direction) { isDashing = false; dashTimer = 0; }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            if (isTouchingWall && !isGrounded) PerformWallKick();
-            else if (isGrounded)
-            {
-                velocity.y = jumpForce; isGrounded = false;
-                bool zHeld = Input.GetKey(KeyCode.Z);
-                bool moving = input.x != 0;
-                if (isDashing || (zHeld && moving)) { isDashJumping = true; velocity.y = dashJumpForce; if (moving) direction = Mathf.Sign(input.x); }
-                else if (zHeld) { isGhostJumping = true; velocity.y = dashJumpForce; }
-                isDashing = false;
-            }
-        }
+        if (Input.GetKeyDown(KeyCode.X)) { if (isTouchingWall && !isGrounded) PerformWallKick(); else if (isGrounded) { velocity.y = jumpForce; isGrounded = false; bool zHeld = Input.GetKey(KeyCode.Z); bool moving = input.x != 0; if (isDashing || (zHeld && moving)) { isDashJumping = true; velocity.y = dashJumpForce; if (moving) direction = Mathf.Sign(input.x); } else if (zHeld) { isGhostJumping = true; velocity.y = dashJumpForce; } isDashing = false; } }
         if (Input.GetKeyUp(KeyCode.X) && velocity.y > 0) velocity.y *= 0.5f;
-
-        if (Input.GetKeyDown(KeyCode.Z) && isGrounded && !isDashing)
-        {
-            isDashing = true; dashTimer = dashDuration;
-            if (input.x != 0) direction = Mathf.Sign(input.x);
-
-            if (dashDustPrefab)
-            {
-                Vector3 spawnPos = transform.position + new Vector3(dashDustOffset.x * direction, dashDustOffset.y, 0);
-                GameObject dust = Instantiate(dashDustPrefab, spawnPos, Quaternion.identity);
-                Vector3 s = dust.transform.localScale; s.x = direction; dust.transform.localScale = s;
-                dust.SetActive(true);
-            }
-        }
+        if (Input.GetKeyDown(KeyCode.Z) && isGrounded && !isDashing) { isDashing = true; dashTimer = dashDuration; if (input.x != 0) direction = Mathf.Sign(input.x); if (dashDustPrefab) { Vector3 spawnPos = transform.position + new Vector3(dashDustOffset.x * direction, dashDustOffset.y, 0); GameObject dust = Instantiate(dashDustPrefab, spawnPos, Quaternion.identity); Vector3 s = dust.transform.localScale; s.x = direction; dust.transform.localScale = s; dust.SetActive(true); } }
         if (Input.GetKeyUp(KeyCode.Z) && isDashing) { isDashing = false; if (anim.HasState(0, Animator.StringToHash("Dash"))) anim.Play("Dash", 0, dashBrakeTime); }
     }
-
-    void Fire()
-    {
-        if (chargeTimer < 0.2f && Time.time < nextFireTime) return;
-        nextFireTime = Time.time + fireRate;
-
-        float chargeValue = 0f;
-        int level = 0;
-        if (chargeTimer >= lv2ChargeTime) { chargeValue = 1.0f; level = 2; }
-        else if (chargeTimer >= lv1ChargeTime) { chargeValue = 0.5f; level = 1; }
-        anim.SetFloat(hashChargeLevel, chargeValue);
-
-        GameObject prefab = bulletPrefab;
-        if (level == 1) prefab = charged1Prefab;
-        else if (level == 2) prefab = charged2Prefab;
-
-        float shootDir = direction;
-        // 벽 타기 중이면 반대로 발사
-        bool isSliding = isTouchingWall && !isGrounded && velocity.y < 0;
-        if (isSliding) shootDir = -wallDir;
-
-        if (prefab && firePoint)
-        {
-            Quaternion rot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
-            GameObject b = Instantiate(prefab, firePoint.position, rot);
-            b.SetActive(true);
-        }
-
-        GameObject flashPrefab = null;
-        if (level == 0) flashPrefab = muzzleFlashNormal;
-        else if (level == 1) flashPrefab = muzzleFlashLv1;
-
-        if (flashPrefab && firePoint)
-        {
-            Quaternion flashRot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
-            GameObject flash = Instantiate(flashPrefab, firePoint.position, flashRot);
-            flash.transform.SetParent(firePoint);
-            flash.SetActive(true);
-        }
-
-        isShooting = true;
-        shootTimer = shootAnimDuration;
-
-        // ★ [확인] anim.Play() 코드 완전히 제거됨 (연타 끊김 해결)
-    }
-
-    void HandleAttack()
-    {
-        if (isCharging)
-        {
-            // 이펙트 위치 고정
-            if (chargeEffectLv1) chargeEffectLv1.transform.localPosition = Vector3.zero;
-            if (chargeEffectLv2) chargeEffectLv2.transform.localPosition = Vector3.zero;
-
-            if (chargeTimer >= lv2ChargeTime)
-            {
-                if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
-                if (chargeEffectLv2 && !chargeEffectLv2.activeSelf) chargeEffectLv2.SetActive(true);
-            }
-            else if (chargeTimer >= lv1ChargeTime)
-            {
-                if (chargeEffectLv1 && !chargeEffectLv1.activeSelf) chargeEffectLv1.SetActive(true);
-                if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
-            }
-            else
-            {
-                if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
-                if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
-            }
-        }
-        else
-        {
-            if (chargeEffectLv1) chargeEffectLv1.SetActive(false);
-            if (chargeEffectLv2) chargeEffectLv2.SetActive(false);
-        }
-    }
-
-    void HandleCharacterBlinking()
-    {
-        if (isCharging)
-        {
-            float t = Mathf.PingPong(Time.time * flashSpeed, 1f);
-            if (chargeTimer >= lv2ChargeTime) sr.color = Color.Lerp(colorLv2_A, colorLv2_B, t);
-            else if (chargeTimer >= lv1ChargeTime) sr.color = Color.Lerp(Color.white, colorLv1, t);
-            else sr.color = Color.white;
-        }
-        else
-        {
-            sr.color = Color.white;
-        }
-    }
-
+    void Fire() { if (chargeTimer < 0.2f && Time.time < nextFireTime) return; nextFireTime = Time.time + fireRate; float chargeValue = 0f; int level = 0; if (chargeTimer >= lv2ChargeTime) { chargeValue = 1.0f; level = 2; } else if (chargeTimer >= lv1ChargeTime) { chargeValue = 0.5f; level = 1; } anim.SetFloat(hashChargeLevel, chargeValue); GameObject prefab = bulletPrefab; if (level == 1) prefab = charged1Prefab; else if (level == 2) prefab = charged2Prefab; float shootDir = direction; bool isSliding = isTouchingWall && !isGrounded && velocity.y < 0; if (isSliding) shootDir = -wallDir; if (prefab && firePoint) { Quaternion rot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity; GameObject b = Instantiate(prefab, firePoint.position, rot); b.SetActive(true); } GameObject flashPrefab = null; if (level == 0) flashPrefab = muzzleFlashNormal; else if (level == 1) flashPrefab = muzzleFlashLv1; if (flashPrefab && firePoint) { Quaternion flashRot = (shootDir == -1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity; GameObject flash = Instantiate(flashPrefab, firePoint.position, flashRot); flash.transform.SetParent(firePoint); flash.SetActive(true); } isShooting = true; shootTimer = shootAnimDuration; }
+    void HandleAttack() { if (isCharging) { if (chargeEffectLv1) chargeEffectLv1.transform.localPosition = Vector3.zero; if (chargeEffectLv2) chargeEffectLv2.transform.localPosition = Vector3.zero; if (chargeTimer >= lv2ChargeTime) { if (chargeEffectLv1) chargeEffectLv1.SetActive(false); if (chargeEffectLv2 && !chargeEffectLv2.activeSelf) chargeEffectLv2.SetActive(true); } else if (chargeTimer >= lv1ChargeTime) { if (chargeEffectLv1 && !chargeEffectLv1.activeSelf) chargeEffectLv1.SetActive(true); if (chargeEffectLv2) chargeEffectLv2.SetActive(false); } else { if (chargeEffectLv1) chargeEffectLv1.SetActive(false); if (chargeEffectLv2) chargeEffectLv2.SetActive(false); } } else { if (chargeEffectLv1) chargeEffectLv1.SetActive(false); if (chargeEffectLv2) chargeEffectLv2.SetActive(false); } }
+    void HandleCharacterBlinking() { if (isCharging) { float t = Mathf.PingPong(Time.time * flashSpeed, 1f); if (chargeTimer >= lv2ChargeTime) sr.color = Color.Lerp(colorLv2_A, colorLv2_B, t); else if (chargeTimer >= lv1ChargeTime) sr.color = Color.Lerp(Color.white, colorLv1, t); else sr.color = Color.white; } else { sr.color = Color.white; } }
     void CalculatePhysics(float dt) { if ((isGrounded && velocity.y <= 0) || isWallHit) { isDashJumping = false; isGhostJumping = false; } if (isDashing && !isGrounded) isDashing = false; if (isWallKicking) { } else if (isDashing) { dashTimer -= dt; if (dashTimer <= 0 || (isWallHit && !isGrounded)) isDashing = false; velocity.x = direction * dashSpeed; } else if (isDashJumping) { if (input.x == 0) velocity.x = 0; else { direction = Mathf.Sign(input.x); velocity.x = direction * dashSpeed; } if (isWallHit) isDashJumping = false; } else velocity.x = input.x * moveSpeed; if (!isWallKicking && velocity.x != 0) { if (!isDashing) { direction = Mathf.Sign(velocity.x); transform.localScale = new Vector3(direction, 1, 1); } } if (isDashing) velocity.y = 0; else if (isTouchingWall && !isGrounded && velocity.y < 0 && input.x == wallDir) { velocity.y = -wallSlideSpeed; isDashJumping = false; isGhostJumping = false; } else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
     void PerformWallKick() { isWallKicking = true; wallKickTimer = wallKickTime; isDashing = false; bool isDashKick = Input.GetKey(KeyCode.Z); Vector2 power = isDashKick ? dashWallJumpPower : wallJumpPower; velocity.x = -wallDir * power.x; velocity.y = power.y; direction = -wallDir; transform.localScale = new Vector3(direction, 1, 1); if (isDashKick) { isDashJumping = true; ghostTimer = 0; SpawnGhost(); } if (wallKickSparkPrefab) { Vector3 spawnPos = transform.position + new Vector3(wallSparkOffset.x * wallDir, wallSparkOffset.y, 0); Quaternion rot = (wallDir == 1) ? Quaternion.Euler(0, 180, 0) : Quaternion.identity; GameObject spark = Instantiate(wallKickSparkPrefab, spawnPos, rot); spark.SetActive(true); } }
     void Move(ref Vector2 moveAmount) { isGrounded = false; isWallHit = false; isTouchingWall = false; CheckWallSensor(); if ((moveAmount.y <= 0 && wasGrounded) || (isDashing && wasGrounded)) DescendSlope(ref moveAmount); if (moveAmount.x != 0) { float dirX = Mathf.Sign(moveAmount.x); float dist = Mathf.Abs(moveAmount.x) + skinWidth; Vector2 boxSize = boxCollider.size; boxSize.x -= skinWidth * 2; boxSize.y -= skinWidth * 2; RaycastHit2D hit = Physics2D.BoxCast((Vector2)transform.position + boxCollider.offset, boxSize, 0, Vector2.right * dirX, dist, groundLayer); if (hit) { float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); if (slopeAngle <= maxSlopeAngle) ClimbSlope(ref moveAmount, slopeAngle); else { moveAmount.x = (hit.distance - skinWidth) * dirX; isWallHit = true; } } } float dirY = (moveAmount.y > 0) ? 1 : -1; if (moveAmount.y == 0) dirY = -1; float distY = Mathf.Abs(moveAmount.y) + skinWidth + 0.05f; Vector2 vBoxSize = boxCollider.size; vBoxSize.x -= skinWidth * 2; RaycastHit2D vHit = Physics2D.BoxCast((Vector2)transform.position + boxCollider.offset, vBoxSize, 0, Vector2.up * dirY, distY, groundLayer); if (vHit) { float realDist = vHit.distance - skinWidth; if (dirY == -1) { if (realDist <= Mathf.Abs(moveAmount.y) + 0.05f) { moveAmount.y = realDist * dirY; isGrounded = true; if (!isDashing) velocity.y = 0; } } else { if (realDist < Mathf.Abs(moveAmount.y)) { moveAmount.y = realDist * dirY; velocity.y = 0; } } } }
@@ -364,21 +285,7 @@ public class MMXPlayer : MonoBehaviour
     void HandleGhostTrail(float dt) { if (isDashing || isDashJumping || isGhostJumping) { ghostTimer -= dt; if (ghostTimer <= 0) { SpawnGhost(); ghostTimer = ghostRate; } } foreach (var g in ghostPool) { if (g.gameObject.activeInHierarchy) { Color c = g.color; c.a -= ghostFadeSpeed * dt; g.color = c; if (c.a <= 0) g.gameObject.SetActive(false); } } }
     void SpawnGhost() { SpriteRenderer g = GetGhostFromPool(); g.transform.position = transform.position; g.transform.rotation = transform.rotation; g.transform.localScale = transform.localScale; g.sprite = sr.sprite; g.flipX = sr.flipX; g.color = ghostColor; g.gameObject.SetActive(true); }
     SpriteRenderer GetGhostFromPool() { foreach (var g in ghostPool) if (!g.gameObject.activeInHierarchy) return g; GameObject o = new GameObject("Ghost"); SpriteRenderer r = o.AddComponent<SpriteRenderer>(); r.sortingLayerID = sr.sortingLayerID; r.sortingOrder = sr.sortingOrder - 1; ghostPool.Add(r); return r; }
-
-    // ★ [UpdateAnimation] 벽 타기 시 달리기 샷 방지 (Speed = 0 트릭)
-    void UpdateAnimation()
-    {
-        anim.SetFloat(hashSpeed, Mathf.Abs(velocity.x));
-        anim.SetFloat(hashYSpeed, velocity.y);
-        bool isSliding = isTouchingWall && !isGrounded && (input.x == wallDir) && velocity.y < 0;
-        if (isSliding) anim.SetFloat(hashSpeed, 0f); // 벽 탈 땐 속도 0으로 속여서 달리기 샷 방지
-        anim.SetBool(hashIsGrounded, isGrounded);
-        anim.SetBool(hashIsDashing, isDashing && isGrounded);
-        anim.SetBool(hashIsWallSliding, isSliding);
-        anim.SetBool(hashIsShooting, isShooting);
-        anim.SetFloat(hashYInput, input.y);
-    }
-
+    void UpdateAnimation() { anim.SetFloat(hashSpeed, Mathf.Abs(velocity.x)); anim.SetFloat(hashYSpeed, velocity.y); bool isSliding = isTouchingWall && !isGrounded && (input.x == wallDir) && velocity.y < 0; if (isSliding) anim.SetFloat(hashSpeed, 0f); anim.SetBool(hashIsGrounded, isGrounded); anim.SetBool(hashIsDashing, isDashing && isGrounded); anim.SetBool(hashIsWallSliding, isSliding); anim.SetBool(hashIsShooting, isShooting); anim.SetFloat(hashYInput, input.y); }
     void OnDrawGizmos() { Gizmos.color = Color.green; Gizmos.DrawWireSphere(transform.position + dashDustOffset, 0.1f); Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position + wallSparkOffset, 0.1f); Gizmos.color = Color.blue; Gizmos.DrawWireSphere(transform.position + new Vector3(dashJetOffset.x * direction, dashJetOffset.y, 0), 0.1f); Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position + new Vector3(wallSlideOffset.x * direction, wallSlideOffset.y, 0), 0.1f); if (firePoint) { Gizmos.color = Color.white; Gizmos.DrawWireSphere(firePoint.position, 0.1f); } }
     void UpdateFirePointPosition() { if (firePoint == null) return; Vector3 targetPos = standFirePos; if (isDashing || isDashJumping) targetPos = dashFirePos; else if (!isGrounded || isWallKicking) targetPos = jumpFirePos; else if (Mathf.Abs(velocity.x) > 0.1f) targetPos = runFirePos; if (isTouchingWall && !isGrounded && input.x == wallDir && velocity.y < 0) targetPos = wallFirePos; firePoint.localPosition = targetPos; }
 }
