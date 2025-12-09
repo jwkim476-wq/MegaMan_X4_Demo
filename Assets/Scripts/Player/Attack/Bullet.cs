@@ -7,7 +7,7 @@ public class Bullet : MonoBehaviour
     public float lifeTime = 2f;
     public int damage = 1;
     public GameObject hitEffect;
-    public bool isPlayerBullet = true; // ★ 플레이어 총알인지 체크
+    public bool isPlayerBullet = true; // 플레이어 총알인지 체크
 
     void Start()
     {
@@ -33,7 +33,7 @@ public class Bullet : MonoBehaviour
             }
             DestroyBullet();
         }
-        // 2. 플레이어를 맞췄을 때 (적 총알인 경우 - 나중에 구현)
+        // 2. 플레이어를 맞췄을 때
         else if (!isPlayerBullet && other.CompareTag("Player"))
         {
             PlayerHealth player = other.GetComponent<PlayerHealth>();

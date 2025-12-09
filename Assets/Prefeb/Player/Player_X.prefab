@@ -689,6 +689,7 @@ GameObject:
   - component: {fileID: 6293218055899888866}
   - component: {fileID: 9056243204684999065}
   - component: {fileID: 6480241245778953018}
+  - component: {fileID: -4880839590997987709}
   m_Layer: 8
   m_Name: Player_X
   m_TagString: Untagged
@@ -705,7 +706,7 @@ Transform:
   m_GameObject: {fileID: 8340728053857524578}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 73.73964, y: 0.39144635, z: -0.05076823}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -878,6 +879,7 @@ MonoBehaviour:
   colorLv1: {r: 0.4, g: 0.8, b: 1, a: 1}
   colorLv2_A: {r: 0.2, g: 0.5, b: 1, a: 1}
   colorLv2_B: {r: 0.4, g: 1, b: 0.4, a: 1}
+  introDuration: 2
   isIntroPlaying: 1
 --- !u!61 &6480241245778953018
 BoxCollider2D:
@@ -924,6 +926,23 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.09375, y: 1.40625}
   m_EdgeRadius: 0
+--- !u!114 &-4880839590997987709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8340728053857524578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b4727c11ebd4464c977c0496327c9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 16
+  invincibilityDuration: 1.5
+  knockbackForce: {x: 3, y: 3}
+  healthBarImage: {fileID: 0}
+  deathEffectPrefab: {fileID: 2000975064532440995, guid: c54f740b8f374b242acb0f21130b394e, type: 3}
 --- !u!1001 &3310696808551721660
 PrefabInstance:
   m_ObjectHideFlags: 0

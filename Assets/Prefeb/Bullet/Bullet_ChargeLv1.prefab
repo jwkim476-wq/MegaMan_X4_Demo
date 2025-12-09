@@ -100,10 +100,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905687e4016dfea43a18af0057f9ab4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  speed: 10
   lifeTime: 10
-  damage: 1
+  damage: 2
   hitEffect: {fileID: 7868063220613911426, guid: 4b0493ce3c6ab5c4e884940c2608ca28, type: 3}
+  isPlayerBullet: 1
 --- !u!95 &9059143961924606149
 Animator:
   serializedVersion: 5

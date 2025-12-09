@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -43,12 +43,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 0.001
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,7 +72,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,7 +121,259 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_0
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 243
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 35ce67f8f0f83364fbb896b3010a4f62
+      internalID: 945027371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_2
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 226
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 08c61a82ed509664da4799bcd7ff8cd6
+      internalID: -560045422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_5
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 210
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71e543928f22dcc43af922fca9c1e749
+      internalID: -427707490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_19
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 112
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5ca4dd8b41ecf545aacdb2b0d8155de
+      internalID: -512448948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_20
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 112
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d89a77e5568a90c42ad5c7fa1fcecf5a
+      internalID: -322115817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_21
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 102
+        width: 35
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1b9f3bb010dfd4a49bb518103ef413ba
+      internalID: 351194898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_23
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 87
+        width: 3
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f00b5e50c431f1b4b9a2fe6b4db126b7
+      internalID: 1867141164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_1
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 87
+        width: 2
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 281aa30d9291ab74d854fe013710f835
+      internalID: 1725497377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_3
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 87
+        width: 3
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48fb65a3bb8f3bc4fae04df72baf8fc2
+      internalID: -975977650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_4
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 87
+        width: 3
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dbe7ccea2d96d174dbc8373754bf7fe9
+      internalID: -116296817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_6
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 87
+        width: 4
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12c5215f2b00b2b429645642e26e9d4a
+      internalID: -65527133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_32
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 87
+        width: 3
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1b83efea92659534db43848a72dde5b5
+      internalID: -1504335614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +384,40 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_0: 945027371
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_1: 1725497377
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_10: -1025463944
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_11: 1763268741
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_12: 1209570111
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_13: -389751906
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_14: -1629925380
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_15: -586511616
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_16: 316754683
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_17: 417551049
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_18: 659650646
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_19: -512448948
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_2: -560045422
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_20: -322115817
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_21: 351194898
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_22: 1949155093
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_23: 1867141164
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_24: 634315059
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_25: -104635267
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_26: 197859163
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_27: -5982660
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_28: 739969962
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_29: -1498133552
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_3: -975977650
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_30: 1517869273
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_31: -883719226
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_32: -1504335614
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_4: -116296817
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_5: -427707490
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_6: -65527133
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_7: 1525526791
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_8: 1721332518
+      PlayStation - Mega Man X4 - Miscellaneous - HUD Elements_9: 1111316625
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

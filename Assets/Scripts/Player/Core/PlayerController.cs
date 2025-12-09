@@ -256,7 +256,7 @@ public class PlayerController : MonoBehaviour
         // 필요 시 여기서 Player Collider 끄기 등을 추가 가능
     }
 
-    // ... (이동, 물리, 공격 로직은 이전과 100% 동일하므로 생략 없이 유지) ...
+   
     void CheckIntroStatus() { if (Time.timeSinceLevelLoad < 0.5f) return; AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0); if (info.IsName("Idle") || info.IsName("X_Idle") || Time.timeSinceLevelLoad > introDuration) { isIntroPlaying = false; } }
     void ProcessGravity(float dt) { if (isGrounded && velocity.y <= 0) velocity.y = -1f; else { velocity.y -= gravity * dt; if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed; } }
     void ProcessInput(float dt)

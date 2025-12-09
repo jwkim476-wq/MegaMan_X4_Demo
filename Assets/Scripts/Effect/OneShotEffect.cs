@@ -10,8 +10,8 @@ public class OneShotEffect : MonoBehaviour
         if (anim != null)
         {
             // 애니메이터가 초기화될 시간을 벌기 위해 프레임 끝까지 대기 후 실행할 수도 있지만,
-            // 보통 Update 한 번 돌면 정보가 들어옵니다.
-            // 가장 안전하게 클립 정보를 가져옵니다.
+            // 보통 Update 한 번 돌면 정보가 들어옴
+            // 가장 안전하게 클립 정보를 가져옴
             if (anim.runtimeAnimatorController != null && anim.runtimeAnimatorController.animationClips.Length > 0)
             {
                 destroyTime = anim.runtimeAnimatorController.animationClips[0].length;
@@ -24,7 +24,7 @@ public class OneShotEffect : MonoBehaviour
             }
         }
 
-        // 애니메이션 길이만큼 뒤에 삭제 (오브젝트 풀이라면 여기서 Return to Pool 로직 사용)
+        // 애니메이션 길이만큼 뒤에 삭제 
         Destroy(gameObject, destroyTime);
     }
 }
