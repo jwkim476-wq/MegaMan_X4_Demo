@@ -13,6 +13,9 @@ public class PlayerHealth : MonoBehaviour
     public Image healthBarImage;
     public GameObject deathEffectPrefab;
 
+    // 게임 매니저 연결
+    public GameManager gameManager;
+
     int currentHealth;
     bool isInvincible;
     bool isDead;
@@ -32,7 +35,6 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-        // 빈사 상태 체크 (애니메이터 전달)
         if (!isDead && anim != null)
         {
             bool isLow = ((float)currentHealth / maxHealth) <= 0.3f;
@@ -54,7 +56,6 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
-        // 플레이어는 맞으면 넉백 + 경직 발생
         if (playerController != null)
         {
             playerController.OnHurt(damageOriginX, knockbackForce, 0.3f);
@@ -66,9 +67,15 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         isDead = true;
-        anim.SetBool("IsDead", true); // 사망 애니메이션
-        if (playerController != null) playerController.OnDie(); // 조작 정지
+        anim.SetBool("IsDead", true);
+        if (playerController != null) playerController.OnDie();
         if (deathEffectPrefab) Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+
+        // 게임 매니저에게 캐릭터 사망 알림
+        if (gameManager != null)
+        {
+            gameManager.OnPlayerDead();
+        }
     }
 
     void UpdateUI()

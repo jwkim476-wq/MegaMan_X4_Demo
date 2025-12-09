@@ -205,7 +205,7 @@ MonoBehaviour:
   contactDamage: 2
   deathEffectPrefab: {fileID: 2000975064532440995, guid: c54f740b8f374b242acb0f21130b394e, type: 3}
   flashDuration: 0.1
-  deathEffectOffset: {x: 0, y: 5, z: 0}
+  deathEffectOffset: {x: 0, y: 1, z: 0}
 --- !u!50 &-2653763262920092171
 Rigidbody2D:
   serializedVersion: 4
@@ -232,7 +232,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &250088365511334073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,10 +245,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df355f2598ff1124ca81751fe5e0e882, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activationRange: 10
+  detectionRange: 6
+  respawnRange: 10
   moveSpeed: 2
   patrolTime: 2
   idleTime: 2
-  detectionRange: 6
   groundCheck: {fileID: 2972004347653304383}
   groundLayer:
     serializedVersion: 2
@@ -258,6 +260,7 @@ MonoBehaviour:
   firePoint: {fileID: 290746129949018698}
   fireRate: 1.5
   shootDelay: 0.5
+  currentState: 1
 --- !u!1 &6994724450464140468
 GameObject:
   m_ObjectHideFlags: 0
